@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- HTML -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>WhatsApp Bug Web</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#1e0f3f;color:#fff;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;min-height:100vh;}
+.logo{width:80px;height:80px;border-radius:50%;position:absolute;top:20px;left:20px;transition: transform 0.5s;}
+.page{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center;flex-direction:column;transition: all 0.8s ease;opacity:1;}
+.hidden{opacity:0;pointer-events:none;transform:translateY(20px);}
+.navbar{position:fixed;bottom:0;width:100%;display:flex;justify-content:space-around;padding:10px 20px;background: rgba(50,0,100,0.8);border-top-left-radius:20px;border-top-right-radius:20px;backdrop-filter: blur(10px);}
+.nav-btn{background: #7a3ff2; border:none; padding:15px; border-radius:50%; color:white; font-size:24px; cursor:pointer; transition: all 0.3s;}
+.nav-btn:hover{transform:scale(1.2); box-shadow:0 0 20px #9c5fff;}
+.profile-card{background: rgba(255,255,255,0.05); padding:30px; border-radius:20px; text-align:center; width:320px; animation: fadeIn 1s; display:flex; flex-direction:column; align-items:center;}
+.profile-card img{width:120px;height:120px;border-radius:50%;margin-bottom:15px;object-fit:cover;border:3px solid #7a3ff2;}
+.profile-card input[type="file"]{margin-bottom:15px;}
+.profile-card h2{margin-bottom:10px;}
+.profile-card p{margin-bottom:10px;font-size:18px;}
+.attack-card{background: rgba(255,255,255,0.05); padding:20px; border-radius:20px; text-align:center; width:420px; animation: fadeIn 1s;}
+.attack-card input{width:80%;padding:10px;margin-bottom:20px;border-radius:12px;border:none;outline:none;font-size:16px;}
+.bug-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+.bug-card{width:100%;padding-top:60%;position:relative;cursor:pointer;overflow:hidden;border-radius:15px;transition: all 0.3s;}
+.bug-card img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition: transform 0.3s;}
+.bug-card:hover img{transform:scale(1.1);filter:brightness(1.2);}
+.loading-bar-container{width:100%;background: rgba(255,255,255,0.2);border-radius:12px;overflow:hidden;margin-top:20px;display:none;}
+.loading-bar{height:20px;width:0%;background:#ff6fa3;transition:width 0.3s;}
+@keyframes fadeIn{0%{opacity:0;transform:translateY(20px);}100%{opacity:1;transform:translateY(0);}}
+@keyframes popupIn{0%{opacity:0;transform:translateY(50px);}100%{opacity:1;transform:translateY(0);}}
+@keyframes popupOut{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(50px);}}
+.popup{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:linear-gradient(45deg,#7a3ff2,#9c5fff);padding:15px 30px;border-radius:12px;box-shadow:0 0 20px rgba(0,0,0,0.5);color:#fff;font-weight:bold;font-size:16px;z-index:9999;opacity:0;pointer-events:none;}
+.popup.show{animation:popupIn 0.5s forwards;}
+.popup.hide{animation:popupOut 0.5s forwards;}
+#loginBox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(255,255,255,0.05);padding:30px;border-radius:20px;text-align:center;display:flex;flex-direction:column;align-items:center;}
+#loginBox input{padding:10px;border-radius:10px;border:none;margin-bottom:15px;width:200px;color:#fff;background:rgba(255,255,255,0.1);}
+#loginBox button{background:#7a3ff2;color:#fff;padding:10px 20px;border-radius:10px;border:none;cursor:pointer;transition:0.3s;}
+#loginBox button:hover{transform:scale(1.05);box-shadow:0 0 15px #9c5fff;}
+</style>
+</head>
+<body>
+
+<!-- Popup -->
+<div class="popup" id="popup"></div>
+
+<!-- Login Box -->
+<div id="loginBox">
+  <h2>Masukkan Password</h2>
+  <input type="password" id="pwInput" placeholder="Password">
+  <button onclick="checkPassword()">Login</button>
+</div>
+
+<!-- Logo -->
+<img src="https://files.catbox.moe/dalddu.jpeg" alt="Logo" class="logo" style="display:none;">
+
+<!-- Profile Page -->
+<div class="page hidden" id="profilePage">
+  <div class="profile-card">
+    <img id="profilePhoto" src="https://files.catbox.moe/dalddu.jpeg" alt="Profile Photo">
+    <input type="file" id="uploadPhoto" accept="image/*">
+    <h2>Profile</h2>
+    <p>ID: <span id="userID"></span></p>
+    <p>Member: Premium</p>
+  </div>
+</div>
+
+<!-- Attack Page -->
+<div class="page hidden" id="attackPage">
+  <div class="attack-card">
+    <h2>WhatsApp Bug</h2>
+    <input type="text" id="targetNo" placeholder="Masukkan Nomor Target">
+    <div class="bug-grid">
+      <div class="bug-card" onclick="startBug('Attack')"><img src="https://files.catbox.moe/pp2pjg.png" alt="Bug 1"></div>
+      <div class="bug-card" onclick="startBug('SPAM')"><img src="https://files.catbox.moe/88pbt0.png" alt="Bug 2"></div>
+      <div class="bug-card" onclick="startBug('BUG IOS')"><img src="https://files.catbox.moe/vgmjr2.png" alt="Bug 3"></div>
+      <div class="bug-card" onclick="startBug('BLANK')"><img src="https://files.catbox.moe/b5rdwf.png" alt="Bug 4"></div>
+    </div>
+    <div class="loading-bar-container">
+      <div class="loading-bar" id="loadingBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Navbar -->
+<div class="navbar" style="display:none;" id="navbar">
+  <button class="nav-btn" onclick="showPage('profile')" title="Profile">👤</button>
+  <button class="nav-btn" onclick="showPage('attack')" title="Attack">⚡</button>
+</div>
+
+<script>
+  // Mencegah Ctrl + Scroll Zoom di Desktop
+window.addEventListener('wheel', function(e) {
+    if (e.ctrlKey) e.preventDefault();
+}, { passive: false });
+
+// Mencegah Ctrl + Plus/Minus/0
+window.addEventListener('keydown', function(e) {
+    if (e.ctrlKey && (e.key === '+' || e.key === '-' || e.key === '0')) {
+        e.preventDefault();
+    }
+});
+
+// DeviceID unik
+let deviceID = localStorage.getItem('deviceID');
+if(!deviceID){
+  deviceID = 'DEV'+Math.floor(10000 + Math.random()*90000);
+  localStorage.setItem('deviceID', deviceID);
+}
+
+// Random userID
+document.getElementById('userID').textContent = Math.floor(10000 + Math.random()*90000);
+
+// Popup
+function showPopup(msg){
+  const popup=document.getElementById('popup');
+  popup.textContent=msg;
+  popup.classList.remove('hide');
+  popup.classList.add('show');
+  popup.style.pointerEvents='auto';
+  setTimeout(()=>{
+    popup.classList.remove('show');
+    popup.classList.add('hide');
+    setTimeout(()=>{popup.style.pointerEvents='none';},500);
+  },3000);
+}
+
+// Page Switching
+function showPage(page){
+  document.getElementById('profilePage').classList.add('hidden');
+  document.getElementById('attackPage').classList.add('hidden');
+  document.getElementById('navbar').style.display='flex';
+  if(page==='profile') document.getElementById('profilePage').classList.remove('hidden');
+  if(page==='attack') document.getElementById('attackPage').classList.remove('hidden');
+}
+
+// Profile Photo
+const uploadInput = document.getElementById('uploadPhoto');
+const profilePhoto = document.getElementById('profilePhoto');
+if(localStorage.getItem('profilePhoto')) profilePhoto.src=localStorage.getItem('profilePhoto');
+uploadInput.addEventListener('change',function(){
+  const file=this.files[0];
+  if(file){
+    const reader=new FileReader();
+    reader.onload=function(e){
+      profilePhoto.src=e.target.result;
+      localStorage.setItem('profilePhoto', e.target.result);
+    }
+    reader.readAsDataURL(file);
+  }
+});
+
+// Login logic
+function checkPassword(){
+  const inputPW = document.getElementById('pwInput').value;
+  const savedPW = localStorage.getItem('sitePW'); // Password yg dibuat admin
+  const maxDevices = parseInt(localStorage.getItem('maxDevices') || '1'); 
+  let devices = JSON.parse(localStorage.getItem('devices') || '[]'); // list deviceID yg pernah login
+
+  if(inputPW === savedPW){
+    if(devices.includes(deviceID)){
+      // sudah login sebelumnya, izinkan
+      loginSuccess();
+    } else if(devices.length < maxDevices){
+      devices.push(deviceID);
+      localStorage.setItem('devices', JSON.stringify(devices));
+      loginSuccess();
+    } else {
+      showPopup('❌ Maksimal device tercapai!');
+    }
+  } else {
+    showPopup('❌ Password salah!');
+  }
+}
+
+function loginSuccess(){
+  document.getElementById('loginBox').style.display='none';
+  document.querySelector('.logo').style.display='block';
+  document.getElementById('navbar').style.display='flex';
+  showPage('profile');
+  showPopup('✅ Login berhasil!');
+}
+
+// Profile Photo, Page switching, Bugs, etc tetap sama
+// Start Bug Function
+function startBug(bugName){
+  const targetNo=document.getElementById('targetNo').value.trim();
+  if(targetNo===''){
+    showPopup('❌ Masukkan nomor target!');
+    return;
+  }
+  const loadingContainer=document.querySelector('.loading-bar-container');
+  const loadingBar=document.getElementById('loadingBar');
+  loadingContainer.style.display='block';
+  loadingBar.style.width='0%';
+    
+  let progress=0;
+  const interval=setInterval(()=>{
+    progress+=1;
+    loadingBar.style.width=progress+'%';
+    if(progress>=100){
+      clearInterval(interval);
+      loadingContainer.style.display='none';
+      showPopup(`✅ ${bugName} selesai dijalankan ke nomor ${targetNo}`);
+    }
+  },200);
+}
+
+// cek jika device sudah login sebelumnya
+const devices = JSON.parse(localStorage.getItem('devices') || '[]');
+if(devices.includes(deviceID)){
+  loginSuccess();
+}
+</script>
+</body>
+</html>
